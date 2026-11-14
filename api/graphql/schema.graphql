@@ -1,0 +1,436 @@
+"A subject or a teaching direction (app rumantic.tutor)."
+type TutorSubject {
+    id: ID!
+    name: String!
+    category: String
+    description: String
+    program: String
+    "Typical topics, one per line."
+    topics: String
+    price: Float
+    color: String!
+}
+
+"A student. Money fields are calculated from lessons and payments."
+type TutorStudent {
+    id: ID!
+    name: String!
+    birth_date: String
+    grade: String
+    school: String
+    phone: String
+    email: String
+    subject_id: Int
+    started_on: String
+    "online | offline"
+    format: String!
+    price: Float
+    duration: Int
+    goal: String
+    level: String
+    desired_result: String
+    strengths: String
+    weaknesses: String
+    "Topics that need extra attention, one per line."
+    focus_topics: String
+    wishes: String
+    "Private notes of the tutor. Never goes into a report."
+    notes: String
+    "new | active | paused | finished | archived"
+    status: String!
+    "Lessons that took place."
+    lessons_done: Int!
+    "Lessons covered by payments."
+    lessons_paid: Int!
+    "Paid minus charged (done and no-show lessons). Negative = debt."
+    balance: Float!
+    debt: Float!
+    next_lesson_date: String
+    next_lesson_time: String
+    last_lesson_date: String
+}
+
+"A parent or another representative of a student."
+type TutorGuardian {
+    id: ID!
+    student_id: Int!
+    name: String!
+    relation: String
+    phone: String
+    email: String
+}
+
+type TutorLesson {
+    id: ID!
+    student_id: Int!
+    subject_id: Int
+    series_id: Int
+    lesson_date: String!
+    lesson_time: String!
+    duration: Int!
+    "online | offline"
+    format: String!
+    "An address or a video conference link."
+    place: String
+    price: Float!
+    "planned | confirmed | done | cancelled_tutor | cancelled_student | no_show | rescheduled"
+    status: String!
+    comment: String
+    "How many times the lesson was moved."
+    moves: Int!
+}
+
+type TutorLessonMove {
+    id: ID!
+    lesson_id: Int!
+    from_date: String!
+    from_time: String!
+    to_date: String!
+    to_time: String!
+    note: String
+    created_at: String
+}
+
+"A record of the learning journal."
+type TutorEntry {
+    id: ID!
+    student_id: Int!
+    lesson_id: Int
+    subject_id: Int
+    entry_date: String!
+    topic: String!
+    material: String
+    exercises: String
+    results: String
+    difficulties: String
+    homework_text: String
+    comment: String
+    "How well the material was learnt, 1..5."
+    score: Int
+    "Links to photos of notebooks, documents, presentations, videos: one per line."
+    links: String
+}
+
+type TutorHomework {
+    id: ID!
+    student_id: Int!
+    subject_id: Int
+    lesson_id: Int
+    topic: String!
+    body: String
+    issued_on: String!
+    due_on: String
+    "issued | in_progress | submitted | done | checked | rework"
+    status: String!
+    "Calculated: the due date has passed and the work is not handed in."
+    is_overdue: Boolean!
+    comment: String
+    links: String
+}
+
+type TutorPayment {
+    id: ID!
+    student_id: Int!
+    paid_on: String!
+    amount: Float!
+    lessons_count: Int!
+    note: String
+}
+
+"Working hours, days off, defaults."
+type TutorSettings {
+    "Comma separated ISO weekdays, 1 = Monday."
+    work_days: String!
+    work_from: String!
+    work_to: String!
+    default_price: Float!
+    default_duration: Int!
+    "Comma separated dates (YYYY-MM-DD)."
+    holidays: String
+    "Name shown in the header of the office and in the reports."
+    tutor_name: String
+}
+
+type TutorReviewItem {
+    code: String!
+    "bad | warn | info"
+    severity: String!
+    student_id: Int
+    lesson_id: Int
+    homework_id: Int
+    "Details separated by | (their meaning depends on the code)."
+    meta: String
+}
+
+type TutorConflict {
+    "overlap | holiday | day_off | off_hours"
+    code: String!
+    lesson_id: Int
+    meta: String
+}
+
+type TutorSlot {
+    date: String!
+    time: String!
+}
+
+type TutorDraft {
+    topic: String!
+    body: String!
+}
+
+type TutorReport {
+    title: String!
+    body: String!
+}
+
+input TutorSubjectInput {
+    name: String! @rules(apply: ["required", "max:120"])
+    category: String @rules(apply: ["nullable", "max:80"])
+    description: String
+    program: String
+    topics: String
+    price: Float @rules(apply: ["nullable", "numeric", "min:0"])
+    color: String @rules(apply: ["nullable", "max:20"])
+}
+
+input TutorStudentInput {
+    name: String! @rules(apply: ["required", "max:160"])
+    birth_date: String @rules(apply: ["nullable", "date_format:Y-m-d"])
+    grade: String @rules(apply: ["nullable", "max:60"])
+    school: String @rules(apply: ["nullable", "max:160"])
+    phone: String @rules(apply: ["nullable", "max:60"])
+    email: String @rules(apply: ["nullable", "email", "max:160"])
+    subject_id: Int
+    started_on: String @rules(apply: ["nullable", "date_format:Y-m-d"])
+    format: String @rules(apply: ["nullable", "in:online,offline"])
+    price: Float @rules(apply: ["nullable", "numeric", "min:0"])
+    duration: Int @rules(apply: ["nullable", "integer", "between:5,480"])
+    goal: String
+    level: String
+    desired_result: String
+    strengths: String
+    weaknesses: String
+    focus_topics: String
+    wishes: String
+    notes: String
+    status: String @rules(apply: ["nullable", "in:new,active,paused,finished,archived"])
+}
+
+input TutorGuardianInput {
+    student_id: Int!
+    name: String! @rules(apply: ["required", "max:160"])
+    relation: String @rules(apply: ["nullable", "max:60"])
+    phone: String @rules(apply: ["nullable", "max:60"])
+    email: String @rules(apply: ["nullable", "email", "max:160"])
+}
+
+input TutorLessonInput {
+    student_id: Int!
+    subject_id: Int
+    lesson_date: String! @rules(apply: ["required", "date_format:Y-m-d"])
+    lesson_time: String! @rules(apply: ["required", "date_format:H:i"])
+    duration: Int @rules(apply: ["nullable", "integer", "between:5,480"])
+    format: String @rules(apply: ["nullable", "in:online,offline"])
+    place: String @rules(apply: ["nullable", "max:300"])
+    price: Float @rules(apply: ["nullable", "numeric", "min:0"])
+    status: String @rules(apply: ["nullable", "in:planned,confirmed,done,cancelled_tutor,cancelled_student,no_show,rescheduled"])
+    comment: String @rules(apply: ["nullable", "max:500"])
+    "Create a weekly series: how many lessons in total (1 = a single lesson). Only for new lessons."
+    repeat_weeks: Int @rules(apply: ["nullable", "integer", "between:1,52"])
+}
+
+input TutorEntryInput {
+    student_id: Int!
+    lesson_id: Int
+    subject_id: Int
+    entry_date: String! @rules(apply: ["required", "date_format:Y-m-d"])
+    topic: String! @rules(apply: ["required", "max:250"])
+    material: String
+    exercises: String
+    results: String
+    difficulties: String
+    homework_text: String
+    comment: String
+    score: Int @rules(apply: ["nullable", "integer", "between:1,5"])
+    links: String
+}
+
+input TutorHomeworkInput {
+    student_id: Int!
+    subject_id: Int
+    lesson_id: Int
+    topic: String! @rules(apply: ["required", "max:250"])
+    body: String
+    issued_on: String @rules(apply: ["nullable", "date_format:Y-m-d"])
+    due_on: String @rules(apply: ["nullable", "date_format:Y-m-d"])
+    status: String @rules(apply: ["nullable", "in:issued,in_progress,submitted,done,checked,rework"])
+    comment: String
+    links: String
+}
+
+input TutorPaymentInput {
+    student_id: Int!
+    paid_on: String @rules(apply: ["nullable", "date_format:Y-m-d"])
+    amount: Float! @rules(apply: ["required", "numeric", "min:0"])
+    lessons_count: Int @rules(apply: ["nullable", "integer", "between:0,500"])
+    note: String @rules(apply: ["nullable", "max:300"])
+}
+
+input TutorSettingsInput {
+    work_days: String @rules(apply: ["nullable", "regex:/^[1-7](,[1-7])*$/"])
+    work_from: String @rules(apply: ["nullable", "date_format:H:i"])
+    work_to: String @rules(apply: ["nullable", "date_format:H:i"])
+    default_price: Float @rules(apply: ["nullable", "numeric", "min:0"])
+    default_duration: Int @rules(apply: ["nullable", "integer", "between:5,480"])
+    holidays: String @rules(apply: ["nullable", "max:4000"])
+    tutor_name: String @rules(apply: ["nullable", "max:120"])
+}
+
+extend type Query {
+    tutorSubjects: [TutorSubject!]!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@subjects")
+
+    tutorStudents: [TutorStudent!]!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@students")
+
+    tutorGuardians(student_id: Int): [TutorGuardian!]!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@guardians")
+
+    tutorLessons(from: String @rules(apply: ["nullable", "date_format:Y-m-d"]) to: String @rules(apply: ["nullable", "date_format:Y-m-d"]) student_id: Int limit: Int = 3000): [TutorLesson!]!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@lessons")
+
+    tutorLessonMoves(lesson_id: Int!): [TutorLessonMove!]!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@lessonMoves")
+
+    "The learning journal, newest first. `search` looks through topic, material, exercises, results and difficulties."
+    tutorEntries(student_id: Int search: String from: String @rules(apply: ["nullable", "date_format:Y-m-d"]) to: String @rules(apply: ["nullable", "date_format:Y-m-d"]) limit: Int = 500): [TutorEntry!]!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@entries")
+
+    tutorHomework(student_id: Int status: String today: String @rules(apply: ["nullable", "date_format:Y-m-d"]) limit: Int = 1000): [TutorHomework!]!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@homework")
+
+    tutorPayments(student_id: Int): [TutorPayment!]!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@payments")
+
+    tutorSettings: TutorSettings!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@settings")
+
+    "What the assistant noticed: debts, lessons without a journal record, overdue homework, students without the next lesson..."
+    tutorReview(today: String @rules(apply: ["nullable", "date_format:Y-m-d"])): [TutorReviewItem!]!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@review")
+
+    "Checks a slot against other lessons, holidays, days off and working hours. Empty list = the slot is free."
+    tutorConflicts(date: String! @rules(apply: ["date_format:Y-m-d"]) time: String! @rules(apply: ["date_format:H:i"]) duration: Int = 60 @rules(apply: ["integer", "between:5,480"]) exclude_id: Int): [TutorConflict!]!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@conflicts")
+
+    "Free start times of a day inside the working hours, every half hour."
+    tutorFreeSlots(date: String! @rules(apply: ["date_format:Y-m-d"]) duration: Int = 60 @rules(apply: ["integer", "between:5,480"]) days: Int = 1 @rules(apply: ["integer", "between:1,14"])): [TutorSlot!]!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@freeSlots")
+
+    "A homework draft from a topic, the subject and the weak spots of the student. A template, not generated exercises."
+    tutorHomeworkDraft(student_id: Int! topic: String count: Int = 6 @rules(apply: ["integer", "between:1,20"]) locale: String @rules(apply: ["nullable", "in:ru,en,sr,tg"])): TutorDraft!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@homeworkDraft")
+
+    "A progress report for the parents. Private notes of the tutor are never included."
+    tutorProgressReport(student_id: Int! from: String @rules(apply: ["nullable", "date_format:Y-m-d"]) to: String @rules(apply: ["nullable", "date_format:Y-m-d"]) with_money: Boolean = false locale: String @rules(apply: ["nullable", "in:ru,en,sr,tg"])): TutorReport!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@progressReport")
+}
+
+extend type Mutation {
+    tutorSaveSubject(id: ID input: TutorSubjectInput!): TutorSubject!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@saveSubject")
+
+    tutorDeleteSubject(id: ID!): Boolean!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@deleteSubject")
+
+    tutorSaveStudent(id: ID input: TutorStudentInput!): TutorStudent!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@saveStudent")
+
+    "Deletes the student with the lessons, journal, homework, payments and contacts."
+    tutorDeleteStudent(id: ID!): Boolean!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@deleteStudent")
+
+    tutorSaveGuardian(id: ID input: TutorGuardianInput!): TutorGuardian!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@saveGuardian")
+
+    tutorDeleteGuardian(id: ID!): Boolean!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@deleteGuardian")
+
+    "Creates or edits a lesson. A new lesson with repeat_weeks > 1 becomes a weekly series."
+    tutorSaveLesson(id: ID input: TutorLessonInput!): [TutorLesson!]!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@saveLesson")
+
+    "A new status. When a lesson of a weekly series is marked as done, the next one is created automatically."
+    tutorSetLessonStatus(id: ID! status: String! @rules(apply: ["required", "in:planned,confirmed,done,cancelled_tutor,cancelled_student,no_show,rescheduled"])): [TutorLesson!]!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@setLessonStatus")
+
+    "Moves a lesson to another date/time and records the move in its history."
+    tutorRescheduleLesson(id: ID! date: String! @rules(apply: ["required", "date_format:Y-m-d"]) time: String! @rules(apply: ["required", "date_format:H:i"]) note: String @rules(apply: ["nullable", "max:300"])): TutorLesson!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@rescheduleLesson")
+
+    "Deletes the lesson; with the whole series, only its future planned lessons."
+    tutorDeleteLesson(id: ID! series: Boolean = false): Boolean!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@deleteLesson")
+
+    tutorSaveEntry(id: ID input: TutorEntryInput!): TutorEntry!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@saveEntry")
+
+    tutorDeleteEntry(id: ID!): Boolean!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@deleteEntry")
+
+    tutorSaveHomework(id: ID input: TutorHomeworkInput!): TutorHomework!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@saveHomework")
+
+    tutorSetHomeworkStatus(id: ID! status: String! @rules(apply: ["required", "in:issued,in_progress,submitted,done,checked,rework"])): TutorHomework!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@setHomeworkStatus")
+
+    tutorDeleteHomework(id: ID!): Boolean!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@deleteHomework")
+
+    tutorSavePayment(id: ID input: TutorPaymentInput!): TutorPayment!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@savePayment")
+
+    tutorDeletePayment(id: ID!): Boolean!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@deletePayment")
+
+    tutorSaveSettings(input: TutorSettingsInput!): TutorSettings!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@saveSettings")
+
+    "Fills an empty office with sample students, lessons, journal, homework and payments. Returns false when data already exists."
+    tutorSeedDemo(locale: String @rules(apply: ["nullable", "in:ru,en,sr,tg"])): Boolean!
+        @guard @can(ability: "admin", model: "Tenant")
+        @field(resolver: "SitebillApps\\Lumen\\Tutor\\GraphQL\\TutorResolver@seedDemo")
+}

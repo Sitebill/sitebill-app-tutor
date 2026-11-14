@@ -1,0 +1,42 @@
+{
+  "id": "rumantic.tutor",
+  "name": { "ru": "Кабинет репетитора", "en": "Tutor's Office", "sr": "Kabinet tutora", "tg": "Кабинети омӯзгор" },
+  "version": "1.0.0",
+  "vendor": { "name": "Lumen", "url": "https://sitebillcms.com/" },
+  "license": "MIT",
+  "repository": "https://github.com/Sitebill/sitebill-app-tutor",
+  "description": {
+    "ru": "Кабинет репетитора с ассистентом: ученики, расписание, учебный журнал, домашние задания, оплаты и контроль долгов. Приложение целиком заменяет сайт.",
+    "en": "A tutor's office with an assistant: students, schedule, learning journal, homework, payments and debt control. The app takes over the whole site."
+  },
+  "sdk": { "php": "1", "web": "1" },
+  "requires": { "host": ">=1.1" },
+  "provider": "SitebillApps\\Lumen\\Tutor\\TutorServiceProvider",
+  "permissions": [],
+  "profiles": ["blank"],
+  "shell": {
+    "mode": "owner",
+    "home": "TutorHome",
+    "adminDashboard": "TutorDashboard",
+    "adminMenu": "replace",
+    "accountMenu": "replace",
+    "publicNav": [
+      { "label": { "ru": "Обзор", "en": "Overview", "sr": "Pregled", "tg": "Шарҳ" }, "to": "/" }
+    ]
+  },
+  "admin": {
+    "menu": [
+      { "label": { "ru": "Обзор", "en": "Dashboard", "sr": "Pregled", "tg": "Шарҳ" }, "icon": "i-lucide-layout-dashboard", "path": "" },
+      { "label": { "ru": "Расписание", "en": "Schedule", "sr": "Raspored", "tg": "Ҷадвал" }, "icon": "i-lucide-calendar-days", "path": "schedule" },
+      { "label": { "ru": "Ученики", "en": "Students", "sr": "Učenici", "tg": "Хонандагон" }, "icon": "i-lucide-graduation-cap", "path": "students" },
+      { "label": { "ru": "Журнал", "en": "Journal", "sr": "Dnevnik", "tg": "Ҷурнал" }, "icon": "i-lucide-notebook-pen", "path": "journal" },
+      { "label": { "ru": "Домашние задания", "en": "Homework", "sr": "Domaći zadaci", "tg": "Вазифаи хонагӣ" }, "icon": "i-lucide-clipboard-check", "path": "homework" },
+      { "label": { "ru": "Оплаты", "en": "Payments", "sr": "Uplate", "tg": "Пардохтҳо" }, "icon": "i-lucide-wallet", "path": "payments" },
+      { "label": { "ru": "Предметы и настройки", "en": "Subjects & settings", "sr": "Predmeti i podešavanja", "tg": "Фанҳо ва танзимот" }, "icon": "i-lucide-settings-2", "path": "settings" },
+      { "label": { "ru": "ИИ-агент", "en": "AI assistant", "sr": "AI asistent", "tg": "Ёрдамчии AI" }, "icon": "i-lucide-sparkles", "path": "agent" }
+    ],
+    "pages": ["", "schedule", "students", "journal", "homework", "payments", "settings", "agent"],
+    "widgets": { "admin.dashboard": "TutorDashboard" }
+  },
+  "web": { "admin": "web/admin.mjs", "site": "web/site.mjs" }
+}

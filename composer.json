@@ -1,0 +1,8 @@
+{
+    "name": "lumen/sitebill-app-tutor",
+    "description": "Tutor's office with a rule-based assistant: an installable Sitebill app that takes over the whole site.",
+    "type": "project",
+    "license": "MIT",
+    "require": { "php": ">=8.4" },
+    "autoload": { "psr-4": { "SitebillApps\Lumen\Tutor\\": "api/src/" } }
+}
